@@ -1,0 +1,22 @@
+{
+    "name": "vagrant/hack-command-io",
+    "type": "library",
+    "keywords": ["command line", "cli", "color", "hack", "hacklang", "hhvm"],
+    "description": "CLI input and output for Hack",
+    "require-dev": {
+        "hackpack/hackunit": "~0.3"
+    },
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Isaac Leinweber",
+            "email": "brotchen@gmail.com"
+        }
+    ],
+    "require": {},
+    "autoload": {
+        "psr-4": {
+            "kilahm\\CommandIO\\": "src/"
+        }
+    }
+}
