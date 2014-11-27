@@ -1,10 +1,10 @@
 {
-    "name": "vagrant/hack-command-io",
+    "name": "vagrant/hack-clio",
     "type": "library",
     "keywords": ["command line", "cli", "color", "hack", "hacklang", "hhvm"],
     "description": "CLI input and output for Hack",
     "require-dev": {
-        "hackpack/hackunit": "~0.3"
+        "hackpack/hackunit": "dev-master"
     },
     "license": "MIT",
     "authors": [
@@ -16,7 +16,7 @@
     "require": {},
     "autoload": {
         "psr-4": {
-            "kilahm\\CommandIO\\": "src/"
+            "kilahm\\Clio\\": "src/"
         }
     }
 }

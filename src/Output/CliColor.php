@@ -1,6 +1,6 @@
 <?hh // strict
 
-namespace kilahm\CommandIO;
+namespace kilahm\CommandIO\Output;
 
 type ColorStyle = shape(
     'fg' => ForegroundCode,
