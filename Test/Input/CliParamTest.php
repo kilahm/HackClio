@@ -23,7 +23,7 @@ class CliParamTest extends TestCase
         $inputs = Vector{'arg1', 'arg2'};
         $clio = new Clio($inputs);
         $arg = $clio->arg('first');
-        $this->expect($clio->getArgVals())->toEqual(Map{'first' => 'arg1', 'Argument 1' => 'arg2'});
+        $this->expect($clio->getArgVals())->toEqual(Map{'first' => 'arg1', '1' => 'arg2'});
     }
 
     public function testOptionNameValidity() : void
