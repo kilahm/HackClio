@@ -20,7 +20,7 @@ class Clio
     private Map<string, CliOption> $definedOptions = Map{};
     private Vector<CliArg> $args = Vector{};
 
-    private Map<string, CliOption> $presentOptions = Map{};
+    private Map<string, CliOption> $flatOptions = Map{};
 
     private Vector<string> $argv;
 
@@ -144,8 +144,8 @@ class Clio
         if($this->shouldCompile){
             $this->shouldCompile = false;
             $this->argCount = 0;
+            $this->flatOptions->clear();
             $this->flattenOptions();
-            $this->presentOptions->clear();
 
             $argv = $this->argv->toVector();
             $argv->reverse();
@@ -184,12 +184,12 @@ class Clio
     private function flattenOptions() : void
     {
         $add = Map{};
-        foreach($this->definedOptions as $option) {
+        foreach($this->definedOptions as $firstName => $option) {
+            $this->flatOptions->add(Pair{$firstName, $option});
             foreach($option->getAliases() as $name) {
-                $add->add(Pair{$name, $option});
+                $this->flatOptions->add(Pair{$name, $option});
             }
         }
-        $this->definedOptions->setAll($add);
     }
 
     private function processLongOpt(string $argText, Vector<string> $argv) : void
@@ -210,7 +210,7 @@ class Clio
         for($i = 1; $i < strlen($argText); $i++) {
             $name = substr($argText, $i, 1);
             $this->assertOptionDefined($name);
-            $opt = $this->definedOptions->at($name);
+            $opt = $this->flatOptions->at($name);
             if($opt->hasVal()) {
                 $val = substr($argText, $i + 1);
                 $val = $val === false ? null : $val;
@@ -224,7 +224,7 @@ class Clio
 
     private function processOpt(string $name, ?string $val, Vector<string> $argv) : void
     {
-        $opt = $this->definedOptions->at($name);
+        $opt = $this->flatOptions->at($name);
 
         if($opt->hasVal()) {
 
@@ -259,12 +259,11 @@ class Clio
         }
 
         $opt->incrementCount();
-        $this->presentOptions->add(Pair{$name, $opt});
     }
 
     private function assertOptionDefined(string $name) : void
     {
-        if( ! $this->definedOptions->containsKey($name)) {
+        if( ! $this->flatOptions->containsKey($name)) {
             throw new UnknownOption($name);
         }
     }
