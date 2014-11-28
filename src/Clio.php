@@ -9,7 +9,9 @@ use kilahm\Clio\Exception\UnknownOption;
 use kilahm\Clio\Input\CliOption;
 use kilahm\Clio\Input\CliOptionType;
 use kilahm\Clio\Input\CliArg;
+use kilahm\Clio\Output\CliFormat;
 
+<<__ConsistentConstruct>>
 class Clio
 {
     private bool $suppressAutoHelp = false;
@@ -22,22 +24,26 @@ class Clio
 
     private Map<string, CliOption> $flatOptions = Map{};
 
-    private Vector<string> $argv;
-
-    public function __construct(?Vector<string> $argv)
+    private static function getServerArgv() : Vector<string>
     {
-        if($argv === null) {
-            $argv = $this->getServerArgv();
-        }
-        $this->argv = $argv;
+        // UNSAFE
+        return Vector::fromItems($_SERVER['argv']);
+    }
 
-        set_exception_handler((Exception $e) ==> {
-            // TODO: format and colorize this
-            echo $e->getMessage();
-            if( ! ($e instanceof ClioException)) {
-                $this->help();
-            }
-        });
+    public static function fromCli() : this
+    {
+        $argv = self::getServerArgv();
+        $filename = basename($argv[0]);
+        $argv->removeKey(0);
+        return new static($filename, $argv, CliFormat::makeWithDefaults());
+    }
+
+    public function __construct(
+        private string $filename,
+        private Vector<string> $argv,
+        private CliFormat $formatter,
+    )
+    {
     }
 
     public function ensureCli() : void
@@ -46,12 +52,6 @@ class Clio
             http_response_code(404);
             exit();
         }
-    }
-
-    private function getServerArgv() : Vector<string>
-    {
-        // UNSAFE
-        return Vector::fromItems($_SERVER['argv']);
     }
 
     public function arg(string $name) : CliArg
@@ -136,7 +136,30 @@ class Clio
             return;
         }
 
-        // Compile all arg and option names and descriptions
+        $indent = str_repeat(' ', 4);
+
+        $help = $this->filename;
+        $description = '';
+        foreach($this->args as $arg){
+            $help .= ' ' . $arg->name;
+            $description .= PHP_EOL . $this->formatter->indent($arg->name, 0.03) . PHP_EOL;
+            if($arg->description !== ''){
+                $description .=  $this->formatter->indent($arg->description, 0.05) . PHP_EOL;
+            }
+        }
+
+        if( ! $this->definedOptions->isEmpty()) {
+            $description .= PHP_EOL . $this->formatter->banner('Options');
+        }
+
+        foreach($this->definedOptions as $opt) {
+            $description .= PHP_EOL . $this->formatter->indent($opt->name, 0.03) . PHP_EOL;
+            if($opt->description !== ''){
+                $description .= $this->formatter->indent($opt->description, 0.05) . PHP_EOL;
+            }
+        }
+
+        echo PHP_EOL . $this->formatter->banner($help) . PHP_EOL . $description;
     }
 
     public function parseInput() : void

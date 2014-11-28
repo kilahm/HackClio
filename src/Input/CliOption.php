@@ -25,7 +25,9 @@ class CliOption
     private int $count = 0;
     private CliOptionType $type = CliOptionType::Value;
 
-    public function __construct(private string $name, private Clio $clio)
+    public string $description = '';
+
+    public function __construct(public string $name, private Clio $clio)
     {
         if( ! $this->isValidName($name)) {
             throw new InvalidArgumentException($name . ' is not a valid name for an option.');
@@ -38,6 +40,12 @@ class CliOption
             throw new InvalidArgumentException($name . ' is not a valid name for an option.');
         }
         $this->aliases->add($name);
+        return $this;
+    }
+
+    public function describedAs(string $description) : this
+    {
+        $this->description = $description;
         return $this;
     }
 

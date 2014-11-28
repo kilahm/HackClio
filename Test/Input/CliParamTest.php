@@ -6,13 +6,17 @@ use HackPack\HackUnit\Core\TestCase;
 use kilahm\Clio\Clio;
 use kilahm\Clio\Exception\MissingOptionValue;
 use kilahm\Clio\Exception\UnknownOption;
+use kilahm\Clio\Output\CliFormat;
 
 class CliParamTest extends TestCase
 {
+    private function makeClio(Vector<string> $argv) : Clio
+    {
+        return new Clio('unit', $argv, CliFormat::makeWithDefaults());
+    }
     public function testClioRecognizesRequiredArgument() : void
     {
-        $inputs = Vector{'arg1'};
-        $clio = new Clio($inputs);
+        $clio = $this->makeClio(Vector{'arg1'});
         $arg = $clio->arg('first');
         $this->expect($clio->getArgVals())->toEqual(Map{'first' => 'arg1'});
         $this->expect($arg->getVal())->toEqual('arg1');
@@ -20,15 +24,14 @@ class CliParamTest extends TestCase
 
     public function testClioRecognizesAdditionalArgument() : void
     {
-        $inputs = Vector{'arg1', 'arg2'};
-        $clio = new Clio($inputs);
+        $clio = $this->makeClio(Vector{'arg1', 'arg2'});
         $arg = $clio->arg('first');
         $this->expect($clio->getArgVals())->toEqual(Map{'first' => 'arg1', '1' => 'arg2'});
     }
 
     public function testOptionNameValidity() : void
     {
-        $clio = new Clio(Vector{});
+        $clio = $this->makeClio(Vector{});
         $valid = Vector{'a', 'b', 'long-opt', 'long'};
         $invalid = Vector{'-', '=', 'long--with--dashes', '--'};
 
@@ -47,7 +50,7 @@ class CliParamTest extends TestCase
 
     public function testClioRecognizesShortOption() : void
     {
-        $clio = new Clio(Vector{'-a'});
+        $clio = $this->makeClio(Vector{'-a'});
 
         $this->expect(
             $clio->opt('a')->isFlag()->wasPresent()
@@ -56,7 +59,7 @@ class CliParamTest extends TestCase
 
     public function testClioRecognizesAllShortOptions() : void
     {
-        $clio = new Clio(Vector{'-abc', '--long', '-de', '-f'});
+        $clio = $this->makeClio(Vector{'-abc', '--long', '-de', '-f'});
 
         $a = $clio->opt('a')->aka('b')->accumulates();
         $c = $clio->opt('c')->isFlag();
@@ -84,7 +87,7 @@ class CliParamTest extends TestCase
 
     public function testClioDoesNotFindMissingOption() : void
     {
-        $clio = new Clio(Vector{});
+        $clio = $this->makeClio(Vector{});
 
         $this->expect(
             $clio->opt('b')->isFlag()->wasPresent()
@@ -93,7 +96,7 @@ class CliParamTest extends TestCase
 
     public function testClioRecognizesLogOption() : void
     {
-        $clio = new Clio(Vector{'--ab'});
+        $clio = $this->makeClio(Vector{'--ab'});
 
         $this->expect(
             $clio->opt('ab')->isFlag()->wasPresent()
@@ -102,7 +105,7 @@ class CliParamTest extends TestCase
 
     public function testClioThrowsExceptionForMissingValue() : void
     {
-        $clio = new Clio(Vector{'-a'});
+        $clio = $this->makeClio(Vector{'-a'});
 
         $this->expectCallable( () ==> {
             $clio->opt('a')->getVal();
@@ -111,7 +114,7 @@ class CliParamTest extends TestCase
 
     public function testClioThrowsExceptionForUnknownOption() : void
     {
-        $clio = new Clio(Vector{'-a'});
+        $clio = $this->makeClio(Vector{'-a'});
 
         $this->expectCallable( () ==> {
             $clio->parseInput();
@@ -120,7 +123,7 @@ class CliParamTest extends TestCase
 
     public function testClioDoesNotThrowForPresentValue() : void
     {
-        $clio = new Clio(Vector{'-aVal1', '--long="stuff"'});
+        $clio = $this->makeClio(Vector{'-aVal1', '--long="stuff"'});
 
         $this->expectCallable( () ==> {
             $clio->opt('a')->opt('long');
@@ -131,7 +134,7 @@ class CliParamTest extends TestCase
 
     public function testClioDoesNotThrowForMissingOptionalValue() : void
     {
-        $clio = new Clio(Vector{'-a'});
+        $clio = $this->makeClio(Vector{'-a'});
 
         $this->expectCallable( () ==> {
             $clio
@@ -144,7 +147,7 @@ class CliParamTest extends TestCase
 
     public function testClioFindsArgsAndOptionsInAnyOrder() : void
     {
-        $clio = new Clio(Vector{
+        $clio = $this->makeClio(Vector{
             '-a',
                 'valA',
                 'arg1',
@@ -172,7 +175,7 @@ class CliParamTest extends TestCase
 
     public function testClioAccumulatesForAllAliases() : void
     {
-        $clio = new Clio(Vector{'-abc', '--aLong', '-c'});
+        $clio = $this->makeClio(Vector{'-abc', '--aLong', '-c'});
         $opt = $clio->opt('a')
             ->aka('b')->aka('c')->aka('aLong')
             ->accumulates();

@@ -17,6 +17,9 @@
     "autoload": {
         "psr-4": {
             "kilahm\\Clio\\": "src/"
-        }
+        },
+        "files": [
+            "src/Enum.php"
+        ]
     }
 }

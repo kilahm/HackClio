@@ -1,16 +1,26 @@
 <?hh // strict
 
-namespace kilahm\CommandIO\Output;
+namespace kilahm\Clio\Output;
+
+use kilahm\Clio\Enum\BackgroundCode;
+use kilahm\Clio\Enum\EffectCode;
+use kilahm\Clio\Enum\ForegroundCode;
 
 <<__ConsistentConstruct>>
 class CliFormat
 {
-    public static function defaults() : this
+    public ColorStyle $bannerStyle = shape(
+        'fg' => ForegroundCode::white,
+        'bg' => BackgroundCode::green,
+        'effect' => EffectCode::reset,
+    );
+
+    public static function makeWithDefaults() : this
     {
-        return new static(exec('tput cols'));
+        return new static((int)exec('tput cols'), new CliColor());
     }
 
-    public function __construct(private int $width)
+    public function __construct(private int $width, private CliColor $color)
     {
     }
 
@@ -36,6 +46,28 @@ class CliFormat
                 PHP_EOL,
                 wordwrap($text, $width, PHP_EOL, true)
             )
+        );
+    }
+
+    public function banner(string $text) : string
+    {
+        return $this->color->style(str_pad($text, $this->width), $this->bannerStyle);
+    }
+
+    public function indent(string $text, float $padding = 0.05) : string
+    {
+        if($padding > 1) {
+            // They probably meant spaces, not percent
+            $spaces = (int)$padding;
+        } else {
+            $spaces = (int)ceil($this->width * $padding);
+        }
+
+        $textWidth = $this->width - $spaces;
+        return implode(
+            PHP_EOL,
+            $this->wrapToVector($text, $textWidth)
+            ->map($line ==> str_repeat(' ', $spaces) . $line)
         );
     }
 }
