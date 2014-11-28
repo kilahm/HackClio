@@ -1,5 +1,5 @@
 {
-    "name": "vagrant/hack-clio",
+    "name": "kilahm/hack-clio",
     "type": "library",
     "keywords": ["command line", "cli", "color", "hack", "hacklang", "hhvm"],
     "description": "CLI input and output for Hack",
