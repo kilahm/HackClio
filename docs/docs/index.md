@@ -1,17 +1,10 @@
-# Welcome to MkDocs
+# Hack Clio
 
-For full documentation visit [mkdocs.org](http://mkdocs.org).
+A fluent library for [Hacklang](http://hacklang.org/) that makes input and output of command line scripts easier.
 
-## Commands
+Code hosted on [github](https://github.com/kilahm/HackClio), docs hosted on [Read the Docs](https://readthedocs.org/).
 
-* `mkdocs new [dir-name]` - Create a new project.
-* `mkdocs serve` - Start the live-reloading docs server.
-* `mkdocs build` - Build the documentation site.
-* `mkdocs help` - Print this help message.
+This project was inspired by and is still influenced by [PHP Commando](https://github.com/nategood/commando).
 
-## Project layout
-
-    mkdocs.yml    # The configuration file.
-    docs/
-        index.md  # The documentation homepage.
-        ...       # Other markdown pages, images and other files.
+This project is still in its infancy.  If you have suggestions, please open an issue on [github](https://github.com/kilahm/hackclio/issues) or [fork](https://github.com/kilahm/HackClio)
+the repository and submit a pull request.
