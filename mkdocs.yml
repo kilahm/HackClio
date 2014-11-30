@@ -3,7 +3,7 @@ site_author: Isaac Leinweber <brotchen@gmail.com>
 repo_url: https://github.com/kilahm/HackClio
 
 theme: readthedocs
-
+markdown_extensions: ['codehilite']
 pages:
     - ['index.md', 'Home']
     - ['about.md', 'About']
