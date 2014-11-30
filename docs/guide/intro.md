@@ -8,7 +8,8 @@ other formatted output is handled through the use of ANSI escape codes.
 
 The recommended way of instantiating the Clio class as it will extract and interpret `$_SERVER[‘argv’]`.
 
-```php
+```
+#!php
 <?hh // strict
 $clio = Clio::fromCli();
 ```

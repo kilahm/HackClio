@@ -7,11 +7,12 @@ Hack Clio allows you to easily define and access any number of arguments (requir
 
 To easily access any arguments the user passed to the initial call of your script, simply call `getArgVals()`.
 
-```php
+```
+#!php
 var_dump($clio->getArgVals());
 ```
 
-```sh
+```
 $ myscript.php myArg1 myArg2
 object(HH\Map)#1 (2) {
   [“1”]=>
@@ -24,12 +25,13 @@ object(HH\Map)#1 (2) {
 
 Note that the result is a `Map<string,string>`.  This is because you can make named arguments, which then become required arguments.
 
-```php
+```
+#!php
 $clio->arg(‘test’);
 var_dump($clio->getArgVals());
 ```
 
-```sh
+```
 $ myscript.php myArg1 myArg2
 object(HH\Map)#1 (2) {
   [“test”]=>
@@ -42,12 +44,13 @@ object(HH\Map)#1 (2) {
 
 You may also save the argument object to be passed around later.
 
-```php
+```
+#!php
 $testArg = $clio->arg(‘test’);
 var_dump($testArg->getVal());
 ```
 
-```sh
+```
 $ myscript.php myArg1 myArg2
 string(6) “myArg1”
 ```
