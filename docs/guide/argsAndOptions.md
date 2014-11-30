@@ -1,18 +1,16 @@
-Using Clio
-==========
+Command line argument/option parsing
+====================================
 
-## Command line argument/options parsing
+Hack Clio allows you to easily define and access any number of arguments (required or optional) and options (indicated with `-` or `--`, and are always optional).
 
-To easily access any arguments the user passed to the inital call of your script, simply access them through `getArgVals()`.
+## Command line arguments
 
-Contents of `myscript.php`
+To easily access any arguments the user passed to the initial call of your script, simply call `getArgVals()`.
+
 ```php
-<?hh // strict
-$clio = new Clio();
 var_dump($clio->getArgVals());
 ```
 
-Run from the command line
 ```sh
 $ myscript.php myArg1 myArg2
 object(HH\Map)#1 (2) {
@@ -24,11 +22,9 @@ object(HH\Map)#1 (2) {
 }
 ```
 
-Note the the result is a `Map<string,string>`.  This is because you can make named arguments, which then become required arguments.
+Note that the result is a `Map<string,string>`.  This is because you can make named arguments, which then become required arguments.
 
 ```php
-<?hh // strict
-$clio = new Clio();
 $clio->arg(‘test’);
 var_dump($clio->getArgVals());
 ```
@@ -47,8 +43,6 @@ object(HH\Map)#1 (2) {
 You may also save the argument object to be passed around later.
 
 ```php
-<?hh // strict
-$clio = new Clio();
 $testArg = $clio->arg(‘test’);
 var_dump($testArg->getVal());
 ```
@@ -57,3 +51,7 @@ var_dump($testArg->getVal());
 $ myscript.php myArg1 myArg2
 string(6) “myArg1”
 ```
+
+## Command line options
+
+To define short and long options

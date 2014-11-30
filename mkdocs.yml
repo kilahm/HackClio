@@ -1,7 +1,11 @@
 site_name: Hack Clio
-pages:
-    - [index.md, Home]
-    - [about.md, About]
-    - [use.md, Usage]
-theme: readthedocs
+site_author: Isaac Leinweber <brotchen@gmail.com>
 repo_url: https://github.com/kilahm/HackClio
+
+theme: readthedocs
+
+pages:
+    - ['index.md', 'Home']
+    - ['about.md', 'About']
+    - ['guide/intro.md', 'User Guide', 'Introduction']
+    - ['guide/argsAndOptions.md', 'User Guide', 'Arguments and Options']
