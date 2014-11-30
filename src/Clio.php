@@ -112,7 +112,7 @@ class Clio
             ->map($opt ==> $opt->getVal());
     }
 
-    public function disableHelp() : this
+    public function throwOnParseError() : this
     {
         $this->suppressAutoHelp = true;
         return $this;
@@ -128,10 +128,6 @@ class Clio
     {
         if($this->helptext !== null) {
             echo $this->helptext;
-            return;
-        }
-
-        if($this->suppressAutoHelp) {
             return;
         }
 
@@ -195,6 +191,9 @@ class Clio
             }
 
         } catch (ClioException $e) {
+            if($this->suppressAutoHelp) {
+                throw $e;
+            }
             echo PHP_EOL . $this->format($e->getMessage())->asError() . PHP_EOL;
             $this->help();
             exit();

@@ -12,7 +12,9 @@ class CliParamTest extends TestCase
 {
     private function makeClio(Vector<string> $argv) : Clio
     {
-        return new Clio('unit', $argv);
+        $clio = new Clio('unit', $argv);
+        $clio->throwOnParseError();
+        return $clio;
     }
     public function testClioRecognizesRequiredArgument() : void
     {
