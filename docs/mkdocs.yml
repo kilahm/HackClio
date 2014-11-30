@@ -1,5 +1,7 @@
 site_name: Hack Clio
 pages:
+    - [index.md, Home]
     - [about.md, About]
     - [use.md, Usage]
 theme: readthedocs
+repo_url: https://github.com/kilahm/HackClio
