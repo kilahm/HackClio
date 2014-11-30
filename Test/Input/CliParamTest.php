@@ -55,7 +55,7 @@ class CliParamTest extends TestCase
         $clio = $this->makeClio(Vector{'-a'});
 
         $this->expect(
-            $clio->opt('a')->isFlag()->wasPresent()
+            $clio->opt('a')->wasPresent()
         )->toEqual(true);
     }
 
@@ -64,12 +64,12 @@ class CliParamTest extends TestCase
         $clio = $this->makeClio(Vector{'-abc', '--long', '-de', '-f'});
 
         $a = $clio->opt('a')->aka('b')->accumulates();
-        $c = $clio->opt('c')->isFlag();
-        $d = $clio->opt('d');
-        $e = $clio->opt('e')->isFlag();
-        $f = $clio->opt('f')->isFlag();
-        $l = $clio->opt('l')->isFlag();
-        $long = $clio->opt('long')->isFlag();
+        $c = $clio->opt('c');
+        $d = $clio->opt('d')->withValue();
+        $e = $clio->opt('e');
+        $f = $clio->opt('f');
+        $l = $clio->opt('l');
+        $long = $clio->opt('long');
 
         $this->expectCallable( () ==> {
             $clio->parseInput();
@@ -92,7 +92,7 @@ class CliParamTest extends TestCase
         $clio = $this->makeClio(Vector{});
 
         $this->expect(
-            $clio->opt('b')->isFlag()->wasPresent()
+            $clio->opt('b')->wasPresent()
         )->toEqual(false);
     }
 
@@ -101,7 +101,7 @@ class CliParamTest extends TestCase
         $clio = $this->makeClio(Vector{'--ab'});
 
         $this->expect(
-            $clio->opt('ab')->isFlag()->wasPresent()
+            $clio->opt('ab')->wasPresent()
         )->toEqual(true);
     }
 
@@ -110,7 +110,7 @@ class CliParamTest extends TestCase
         $clio = $this->makeClio(Vector{'-a'});
 
         $this->expectCallable( () ==> {
-            $clio->opt('a')->getVal();
+            $clio->opt('a')->withValue()->getVal();
         })->toThrow(MissingOptionValue::class);
     }
 
@@ -128,7 +128,7 @@ class CliParamTest extends TestCase
         $clio = $this->makeClio(Vector{'-aVal1', '--long="stuff"'});
 
         $this->expectCallable( () ==> {
-            $clio->opt('a')->opt('long');
+            $clio->opt('a')->withValue()->opt('long')->withValue();
             $this->expect($clio->getOptVals())
                 ->toEqual(Map{'a' => 'Val1', 'long' => '"stuff"'});
         })->toNotThrow();
@@ -140,8 +140,8 @@ class CliParamTest extends TestCase
 
         $this->expectCallable( () ==> {
             $clio
-                ->opt('a')->withDefault('Val1')
-                ->opt('long')->withDefault('"stuff"');
+                ->opt('a')->withValue('Val1')
+                ->opt('long')->withValue('"stuff"');
             $this->expect($clio->getOptVals())
                 ->toEqual(Map{'a' => 'Val1', 'long' => '"stuff"'});
         })->toNotThrow();
@@ -160,8 +160,8 @@ class CliParamTest extends TestCase
         $clio
             ->arg('one')
             ->arg('two');
-        $a = $clio->opt('a');
-        $b = $clio->opt('b')->isFlag();
+        $a = $clio->opt('a')->withValue();
+        $b = $clio->opt('b');
 
         $this->expectCallable(() ==> {
             $clio->parseInput();

@@ -23,7 +23,7 @@ class CliOption
     private string $value = '';
     private bool $hasDefault = false;
     private int $count = 0;
-    private CliOptionType $type = CliOptionType::Value;
+    private CliOptionType $type = CliOptionType::Flag;
 
     public string $description = '';
 
@@ -71,46 +71,29 @@ class CliOption
         return $out;
     }
 
-    public function withDefault(string $default) : this
-    {
-        $this->hasDefault = true;
-        switch($this->type)
-        {
-
-        case CliOptionType::Path:
-            $rp = realpath($default);
-            if($rp === false) {
-                throw new InvalidOptionDefault($default);
-            }
-            $this->value = $rp;
-            break;
-
-        case CliOptionType::Value:
-            $this->value = $default;
-            break;
-
-        case CliOptionType::Flag:
-        case CliOptionType::Accumulator:
-            throw new ClioException('Flag and accumulator options may not have default values.');
-        }
-        return $this;
-    }
-
     public function accumulates() : this
     {
         $this->type = CliOptionType::Accumulator;
         return $this;
     }
 
-    public function isPath() : this
+    public function isPath(?string $default = null) : this
     {
         $this->type = CliOptionType::Path;
+        if($default !== null) {
+            $this->hasDefault = true;
+            $this->value = $default;
+        }
         return $this;
     }
 
-    public function isFlag() : this
+    public function withValue(?string $default = null) : this
     {
-        $this->type = CliOptionType::Flag;
+        $this->type = CliOptionType::Value;
+        if($default !== null) {
+            $this->hasDefault = true;
+            $this->value = $default;
+        }
         return $this;
     }
 
