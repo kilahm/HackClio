@@ -12,9 +12,35 @@ type ColorStyle = shape(
     'effect' => EffectCode,
 );
 
-<<__ConsistentConstruct>>
-class CliColor
+final class CliColor
 {
+    public static function banner() : ColorStyle
+    {
+        return shape(
+            'fg' => ForegroundCode::white,
+            'bg' => BackgroundCode::green,
+            'effect' => EffectCode::bold,
+        );
+    }
+
+    public static function plain() : ColorStyle
+    {
+        return shape(
+            'fg' => ForegroundCode::reset,
+            'bg' => BackgroundCode::reset,
+            'effect' => EffectCode::reset,
+        );
+    }
+
+    public static function error() : ColorStyle
+    {
+        return shape(
+            'fg' => ForegroundCode::white,
+            'bg' => BackgroundCode::light_red,
+            'effect' => EffectCode::bold,
+        );
+    }
+
     private ForegroundCode $fg = ForegroundCode::reset;
     private BackgroundCode $bg = BackgroundCode::reset;
     private EffectCode $effect = EffectCode::reset;
@@ -24,23 +50,17 @@ class CliColor
         return new static($text);
     }
 
-    public function style(string $text, ColorStyle $style) : string
+    public function withStyle(ColorStyle $style) : string
     {
-        return $this->text($text)
+        return $this
             ->fg($style['fg'])
             ->bg($style['bg'])
             ->effect($style['effect'])
-            ->result();
+            ->getResult();
     }
 
     public function __construct(private string $text = '')
     {
-    }
-
-    public function text(string $text) : this
-    {
-        $this->text = $text;
-        return $this;
     }
 
     public function fg(ForegroundCode $fg) : this
@@ -61,7 +81,7 @@ class CliColor
         return $this;
     }
 
-    public function result() : string
+    public function getResult() : string
     {
         return $this->apply() . $this->text . $this->reset();
     }

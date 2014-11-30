@@ -59,3 +59,10 @@ enum EffectCode : int as int
     reverse   = 7;
     concealed = 8;
 }
+
+enum CliTextAlign : string
+{
+    Left   = 'left';
+    Right  = 'right';
+    Center = 'center';
+}

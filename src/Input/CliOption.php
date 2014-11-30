@@ -62,6 +62,15 @@ class CliOption
         return $this->aliases->toSet();
     }
 
+    public function getAllNames() : string
+    {
+        $out = strlen($this->name) === 1 ? '-' . $this->name : '--' . $this->name;
+        foreach($this->aliases as $alias) {
+            $out .= strlen($alias) === 1 ? '-' . $alias : '--' . $alias;
+        }
+        return $out;
+    }
+
     public function withDefault(string $default) : this
     {
         $this->hasDefault = true;

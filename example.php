@@ -27,5 +27,6 @@ $clio
     ->opt('a')->describedAs(str_repeat('This is a really long description. ', 10))
     ->opt('long-option')
     ->opt('another-option')->describedAs('That one option that does nothing.');
+$clio->parseInput();
 
-$clio->help();
+//$clio->help();

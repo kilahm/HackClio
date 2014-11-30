@@ -33,15 +33,14 @@ class Clio
     public static function fromCli() : this
     {
         $argv = self::getServerArgv();
-        $filename = basename($argv[0]);
+        $scriptname = basename($argv[0]);
         $argv->removeKey(0);
-        return new static($filename, $argv, CliFormat::makeWithDefaults());
+        return new static($scriptname, $argv);
     }
 
     public function __construct(
-        private string $filename,
+        private string $scriptname,
         private Vector<string> $argv,
-        private CliFormat $formatter,
     )
     {
     }
@@ -138,35 +137,47 @@ class Clio
 
         $indent = str_repeat(' ', 4);
 
-        $help = $this->filename;
+        $help = $this->scriptname;
         $description = '';
         foreach($this->args as $arg){
             $help .= ' ' . $arg->name;
-            $description .= PHP_EOL . $this->formatter->indent($arg->name, 0.03) . PHP_EOL;
-            if($arg->description !== ''){
-                $description .=  $this->formatter->indent($arg->description, 0.05) . PHP_EOL;
-            }
+            $description .= $this->formatNameAndDescription($arg->name, $arg->description);
         }
 
         if( ! $this->definedOptions->isEmpty()) {
-            $description .= PHP_EOL . $this->formatter->banner('Options');
+            $description .= PHP_EOL . $this->format('Options')->asBanner();
         }
 
         foreach($this->definedOptions as $opt) {
-            $description .= PHP_EOL . $this->formatter->indent($opt->name, 0.03) . PHP_EOL;
-            if($opt->description !== ''){
-                $description .= $this->formatter->indent($opt->description, 0.05) . PHP_EOL;
+            $name = $opt->getAllNames();
+            if($opt->hasVal()) {
+                $name .= ' <Value>';
             }
+            $description .= $this->formatNameAndDescription($name, $opt->description);
         }
 
-        echo PHP_EOL . $this->formatter->banner($help) . PHP_EOL . $description;
+        echo PHP_EOL . $this->format($help)->asBanner() . PHP_EOL . $description;
+    }
+
+    private function formatNameAndDescription(string $name, string $description) : string
+    {
+        $out = PHP_EOL . $this->format($name)->indentLeft(0.03)->getResult() . PHP_EOL;
+        if($description !== '') {
+            $out .= $this->format($description)->indentLeft(0.05)->getResult() . PHP_EOL;
+        }
+        return $out;
     }
 
     public function parseInput() : void
     {
-        if($this->shouldCompile){
-            $this->shouldCompile = false;
-            $this->argCount = 0;
+        if( ! $this->shouldCompile){
+            return;
+        }
+
+        $this->shouldCompile = false;
+        $this->argCount = 0;
+
+        try{
             $this->flatOptions->clear();
             $this->flattenOptions();
 
@@ -182,6 +193,11 @@ class Clio
                     $this->processArg($argText);
                 }
             }
+
+        } catch (ClioException $e) {
+            echo PHP_EOL . $this->format($e->getMessage())->asError() . PHP_EOL;
+            $this->help();
+            exit();
         }
     }
 
@@ -229,20 +245,20 @@ class Clio
 
     private function processShortOpt(string $argText, Vector<string> $argv) : void
     {
-        // Skip the leading dash
-        for($i = 1; $i < strlen($argText); $i++) {
-            $name = substr($argText, $i, 1);
-            $this->assertOptionDefined($name);
-            $opt = $this->flatOptions->at($name);
-            if($opt->hasVal()) {
-                $val = substr($argText, $i + 1);
-                $val = $val === false ? null : $val;
-                $this->processOpt($name, $val, $argv);
-                break;
-            } else {
-                $this->processOpt($name, null, $argv);
+            // Skip the leading dash
+            for($i = 1; $i < strlen($argText); $i++) {
+                $name = substr($argText, $i, 1);
+                $this->assertOptionDefined($name);
+                $opt = $this->flatOptions->at($name);
+                if($opt->hasVal()) {
+                    $val = substr($argText, $i + 1);
+                    $val = $val === false ? null : $val;
+                    $this->processOpt($name, $val, $argv);
+                    break;
+                } else {
+                    $this->processOpt($name, null, $argv);
+                }
             }
-        }
     }
 
     private function processOpt(string $name, ?string $val, Vector<string> $argv) : void
@@ -291,4 +307,8 @@ class Clio
         }
     }
 
+    public function format(string $text) : CliFormat
+    {
+        return new CliFormat($text);
+    }
 }
