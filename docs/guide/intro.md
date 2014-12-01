@@ -22,6 +22,6 @@ a `Vector<string>` containing individual arguments and options (with the leading
 
 All of the example code below assumes there is a variable named `$clio` with an instance of `Clio` obtained through the factory method as described above.
 
-Often there will be two code blocks.  The top one is typically an exerpt from a php script and the bottom one is invoking the script from the command line along with what is sent to
-`STDOUT`.
+Often there will be two code blocks.  The top one is typically an excerpt from a php script and the bottom one is invoking the script from the command line along with what is sent to
+`STDOUT`.  The name of the script in all of the examples is `myscript.php`.
 
