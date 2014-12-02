@@ -47,6 +47,18 @@ class CliQuestion
         return $this;
     }
 
+    public function withSeperatorStyle(ColorStyle $style) : this
+    {
+        $this->sepStyle = $style;
+        return $this;
+    }
+
+    public function withPrompt(string $prompt) : this
+    {
+        $this->prompt = $prompt;
+        return $this;
+    }
+
     public function getAnswer() : string
     {
         $this->formatQuestion();
