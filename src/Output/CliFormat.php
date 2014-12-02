@@ -16,7 +16,8 @@ final class CliFormat
     private int $rightPad = 0;
     private int $leftMargin = 0;
     private int $rightMargin = 0;
-    private int $textWidth = 0;
+    private int $textWidth;
+    private int $maxWidth;
     private int $paddedTextWidth = 0;
     private bool $vPad = false;
 
@@ -26,10 +27,15 @@ final class CliFormat
         return (int)exec('tput cols');
     }
 
+    public static function make(string $text) : this
+    {
+        return new static($text);
+    }
     public function __construct(private string $text)
     {
         $this->screenWidth = self::getScreenWidth();
         $this->textWidth = $this->screenWidth;
+        $this->maxWidth = $this->screenWidth;
         $this->colors = CliColor::plain();
     }
 
@@ -46,6 +52,16 @@ final class CliFormat
                 wordwrap($this->text, $width, PHP_EOL, true)
             )
         );
+    }
+
+    public function maxWidth(float $width) : this
+    {
+        if($width > 1.0) {
+            $this->maxWidth = (int)floor($width);
+        } else {
+            $this->maxWidth = (int)floor($width * $this->screenWidth);
+        }
+        return $this;
     }
 
     public function center(float $padding = 0.0) : this
@@ -209,7 +225,7 @@ final class CliFormat
             $this->textWidth += 1;
         }
 
-        $this->textWidth = min($maxWidth, strlen($this->text));
+        $this->textWidth = min($maxWidth, strlen($this->text), $this->maxWidth);
 
         $this->paddedTextWidth = $this->textWidth + $this->leftPad + $this->rightPad;
     }

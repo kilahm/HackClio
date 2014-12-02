@@ -28,5 +28,9 @@ $clio
     ->opt('long-option')
     ->opt('another-option')->describedAs('That one option that does nothing.');
 $clio->parseInput();
+$clio->help();
 
-//$clio->help();
+$answer = $clio->ask('Is this a question?')->withAnswers(Vector{'yes', 'no'})->getAnswer();
+
+echo PHP_EOL . $answer;
+

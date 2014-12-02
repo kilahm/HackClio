@@ -9,6 +9,7 @@ use kilahm\Clio\Exception\UnknownOption;
 use kilahm\Clio\Input\CliOption;
 use kilahm\Clio\Input\CliOptionType;
 use kilahm\Clio\Input\CliArg;
+use kilahm\Clio\Input\CliQuestion;
 use kilahm\Clio\Output\CliFormat;
 
 <<__ConsistentConstruct>>
@@ -309,5 +310,10 @@ class Clio
     public function format(string $text) : CliFormat
     {
         return new CliFormat($text);
+    }
+
+    public function ask(string $question) : CliQuestion
+    {
+        return new CliQuestion($question);
     }
 }
