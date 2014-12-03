@@ -54,6 +54,13 @@ final class CliFormat
         );
     }
 
+    public function lineCount() : int
+    {
+        $this->adjustSpacing();
+        $count = $this->splitLines($this->textWidth)->count();
+        return $this->vPad ? $count + 2 : $count;
+    }
+
     public function maxWidth(float $width) : this
     {
         if($width > 1.0) {
