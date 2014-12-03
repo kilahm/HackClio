@@ -1,21 +1,14 @@
 <?hh // strict
 
-namespace kilahm\Clio\Test;
+namespace kilahm\Clio\Test\Input;
 
-use HackPack\HackUnit\Core\TestCase;
-use kilahm\Clio\Clio;
+use kilahm\Clio\Test\ClioTestCase;
 use kilahm\Clio\Exception\MissingOptionValue;
 use kilahm\Clio\Exception\UnknownOption;
 use kilahm\Clio\Output\CliFormat;
 
-class CliParamTest extends TestCase
+class CliParamTest extends ClioTestCase
 {
-    private function makeClio(Vector<string> $argv) : Clio
-    {
-        $clio = new Clio('unit', $argv);
-        $clio->throwOnParseError();
-        return $clio;
-    }
     public function testClioRecognizesRequiredArgument() : void
     {
         $clio = $this->makeClio(Vector{'arg1'});
