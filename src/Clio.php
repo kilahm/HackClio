@@ -3,6 +3,7 @@
 namespace kilahm\Clio;
 
 use Exception;
+use InvalidArgumentException;
 use kilahm\Clio\Exception\ClioException;
 use kilahm\Clio\Exception\MissingOptionValue;
 use kilahm\Clio\Exception\UnknownOption;
@@ -36,14 +37,25 @@ class Clio
         $argv = self::getServerArgv();
         $scriptname = basename($argv[0]);
         $argv->removeKey(0);
-        return new static($scriptname, $argv);
+        return new static($scriptname, $argv, STDIN, STDOUT);
     }
 
     public function __construct(
         private string $scriptname,
         private Vector<string> $argv,
+        private resource $stdin,
+        private resource $stdout
     )
     {
+        $this->testStream('input', $stdin);
+        $this->testStream('output', $stdout);
+    }
+
+    private function testStream(string $name, resource $stream) : void
+    {
+        if(get_resource_type($stream) !== 'stream') {
+            throw new InvalidArgumentException('The resource given for ' . $name . ' is not a stream.');
+        }
     }
 
     public function ensureCli() : void
@@ -314,6 +326,16 @@ class Clio
 
     public function ask(string $question) : CliQuestion
     {
-        return new CliQuestion($question);
+        return new CliQuestion($question, $this);
+    }
+
+    public function getLine() : string
+    {
+        return trim(fgets($this->stdin));
+    }
+
+    public function out(string $out) : void
+    {
+        fputs($this->stdout, $out);
     }
 }

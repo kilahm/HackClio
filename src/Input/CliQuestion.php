@@ -2,6 +2,7 @@
 
 namespace kilahm\Clio\Input;
 
+use kilahm\Clio\Clio;
 use kilahm\Clio\Enum\BackgroundCode;
 use kilahm\Clio\Enum\EffectCode;
 use kilahm\Clio\Enum\ForegroundCode;
@@ -19,8 +20,9 @@ class CliQuestion
     private CliCursor $cursor;
     private ColorStyle $answerStyle;
     private ColorStyle $sepStyle;
+    private int $lineCount = 0;
 
-    public function __construct(private string $question)
+    public function __construct(private string $question, private Clio $clio)
     {
         $this->cursor = new CliCursor();
         $this->answerStyle = shape(
@@ -34,6 +36,7 @@ class CliQuestion
             'effect' => EffectCode::reset,
         );
     }
+
 
     public function withAnswers(Vector<string> $answers) : this
     {
@@ -78,31 +81,34 @@ class CliQuestion
 
     private function formatQuestion() : void
     {
-        $this->formattedQuestion = $this->question
-            . PHP_EOL . $this->formatAnswers()
+        $this->formattedQuestion = PHP_EOL
+            . $this->question
+            . $this->formatAnswers()
             . PHP_EOL . $this->prompt;
     }
 
     private function formatAnswers() : string
     {
+        if($this->answers->isEmpty()) {
+            return '';
+        }
         $oneLineAnswers = implode(
             CliColor::make(' | ')->withStyle($this->sepStyle),
             $this->answers->map($ans ==>
                 CliColor::make($ans)->withStyle($this->answerStyle)
             )
         );
-        $answers = CliFormat::make($oneLineAnswers)
-            ->indent(1.0)
-            ->getResult();
+        $answerFormatter = CliFormat::make($oneLineAnswers)->indent(1.0);
+        $this->lineCount = $answerFormatter->lineCount();
 
-        return CliColor::make('[ ')->withStyle($this->sepStyle)
-            . $answers
+        return PHP_EOL . CliColor::make('[ ')->withStyle($this->sepStyle)
+            . $answerFormatter->getResult()
             . CliColor::make(' ]')->withStyle($this->sepStyle);
     }
 
     private function ask() : string
     {
-        fwrite(STDOUT, $this->formattedQuestion);
-        return trim(fgets(STDIN));
+        $this->clio->out($this->formattedQuestion);
+        return $this->clio->getLine();
     }
 }
