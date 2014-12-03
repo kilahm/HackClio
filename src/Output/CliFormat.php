@@ -167,8 +167,12 @@ final class CliFormat
         return $this;
     }
 
-    public function asBanner(ColorStyle $style = CliColor::banner()) : string
+    public function asBanner(?ColorStyle $style = null) : string
     {
+        if($style === null) {
+            $style = CliColor::banner();
+        }
+
         $this->vPad = true;
         $this->rightMargin = $this->leftMargin = $this->leftPad = 2;
         $this->rightPad = max(( $this->screenWidth - strlen($this->text) ) - 8, 2);
@@ -176,8 +180,12 @@ final class CliFormat
         return $this->getResult();
     }
 
-    public function asError(ColorStyle $style = CliColor::error()) : string
+    public function asError(?ColorStyle $style = null) : string
     {
+        if($style === null) {
+            $style = CliColor::error();
+        }
+
         $this->leftMargin = $this->leftPad = $this->rightPad = 2;
         $this->colors = $style;
         return $this->getResult();
