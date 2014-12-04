@@ -6,6 +6,7 @@ class MissingOptionValue extends ClioException
 {
     public function __construct(string $optionName)
     {
-        parent::__construct('Option "' . $optionName . '" requires a value.');
+        $optionName = (strlen($optionName) > 1 ? '--' : '-') . $optionName;
+        parent::__construct($optionName . ' requires a value.');
     }
 }

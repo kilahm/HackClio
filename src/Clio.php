@@ -191,11 +191,7 @@ final class Clio
         }
 
         foreach($this->definedOptions as $opt) {
-            $name = $opt->getAllNames();
-            if($opt->hasVal()) {
-                $name .= ' <Value>';
-            }
-            $description .= $this->formatNameAndDescription($name, $opt->description);
+            $description .= $this->formatNameAndDescription($opt->getAllNames(), $opt->description);
         }
 
         echo  PHP_EOL . $this->formatUseText()
@@ -263,7 +259,6 @@ final class Clio
                 throw $e;
             }
             echo PHP_EOL . $this->format($e->getMessage())->asError() . PHP_EOL;
-            $this->help();
             exit();
         }
     }
@@ -334,34 +329,34 @@ final class Clio
 
         if($opt->hasVal()) {
 
-            // Try to make the value non-null
             if($val === null) {
-                if($opt->hasDefault()) {
-                    // Defining the default sets it to the value
-                    $val = $opt->getVal();
-
-                } else {
-
+                // Try to make the value non-null
+                if( ! $argv->isEmpty()) {
                     // Try the next argument
-                    if($argv->isEmpty()) {
-                        throw new MissingOptionValue($name);
-                    }
                     $val = $argv->pop();
                     if($val === '' || substr($val,0,1) === '-') {
                         throw new MissingOptionValue($name);
                     }
-                }
 
-                if($opt->getType() === CliOptionType::Path) {
-                    $rp = realpath($val);
-                    if($rp === false) {
-                        throw new \Exception($val . ' is not a valid path.');
-                    }
-                    $val = $rp;
+                } elseif($opt->hasDefault()) {
+                    // Try the default value
+                    $val = $opt->getVal();
+                } else {
+                    // No more sources for a value
+                    throw new MissingOptionValue($name);
                 }
             }
 
+            if($opt->getType() === CliOptionType::Path) {
+                $rp = realpath($val);
+                if($rp === false) {
+                    throw new \Exception($val . ' is not a valid path.');
+                }
+                $val = $rp;
+            }
+
             $opt->setVal($val);
+            $opt->validate($name);
         }
 
         $opt->incrementCount();

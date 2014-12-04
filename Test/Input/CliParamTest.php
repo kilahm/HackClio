@@ -5,6 +5,7 @@ namespace kilahm\Clio\Test\Input;
 use kilahm\Clio\Test\ClioTestCase;
 use kilahm\Clio\Exception\MissingOptionValue;
 use kilahm\Clio\Exception\UnknownOption;
+use kilahm\Clio\Exception\InvalidOptionValue;
 use kilahm\Clio\Output\CliFormat;
 
 class CliParamTest extends ClioTestCase
@@ -180,5 +181,45 @@ class CliParamTest extends ClioTestCase
         })->toNotThrow();
 
         $this->expect($opt->getCount())->toEqual(5);
+    }
+
+    public function testInvalidOptionValueByPatternThrows() : void
+    {
+        $clio = $this->makeClio(Vector{'-vInvalid'});
+        $opt = $clio->opt('v')->withValue()->mustMatchPattern('|\d+|');
+        $this->expectCallable(() ==> {
+            $clio->parseInput();
+        })->toThrow(InvalidOptionValue::class, 'The value of -v does not match the regular expression |\d+|');
+    }
+
+    public function testValidOptionValueByPatternDoesNotThrow() : void
+    {
+        $clio = $this->makeClio(Vector{'-v valid'});
+        $opt = $clio->opt('v')->withValue()->mustMatchPattern('|valid|');
+        $this->expectCallable(() ==> {
+            $clio->parseInput();
+        })->toNotThrow();
+    }
+
+    public function testInvalidOptionValueByFunctionThrows() : void
+    {
+        $clio = $this->makeClio(Vector{'-vInvalid'});
+        $clio
+            ->opt('v')->withValue()
+            ->validatedBy((string $in) ==> false);
+        $this->expectCallable(() ==> {
+            $clio->parseInput();
+        })->toThrow(InvalidOptionValue::class, 'The value of -v is not valid.');
+    }
+
+    public function testValidOptionValueByFunctionDoesNotThrows() : void
+    {
+        $clio = $this->makeClio(Vector{'-vInvalid'});
+        $clio
+            ->opt('v')->withValue()
+            ->validatedBy((string $in) ==> true);
+        $this->expectCallable(() ==> {
+            $clio->parseInput();
+        })->toNotThrow();
     }
 }
