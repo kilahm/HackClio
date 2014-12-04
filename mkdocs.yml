@@ -6,6 +6,7 @@ theme: readthedocs
 markdown_extensions: ['codehilite']
 pages:
     - ['index.md', 'Home']
-    - ['about.md', 'About']
     - ['guide/intro.md', 'User Guide', 'Introduction']
     - ['guide/argsAndOptions.md', 'User Guide', 'Arguments and Options']
+    - ['guide/formatsAndColors.md', 'User Guide', 'Formatting Output']
+    - ['guide/questions.md', 'User Guide', 'Asking Questions']

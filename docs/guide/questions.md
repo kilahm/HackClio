@@ -56,18 +56,11 @@ $answer = $clio
     ->getAnswer();
 ```
 
-
-There is a separate color style for the separator characters which you may define as well.
-
+If you wish to also customize the seperator and brackets surrounding the answers, you may do so.
 
 ```
 #!php
 <?hh
-$seperatorStyle = shape(
-    ‘fg’ => ForegroundCode::black,
-    ‘bg’ => BackgroundCode::white,
-    ‘effect’ => EffectCode::reset,
-);
 $answerStyle = shape(
     ‘fg’ => ForegroundCode::white,
     ‘bg’ => BackgroundCode::black,
@@ -77,7 +70,8 @@ $answer = $clio
     ->ask(‘What day is it?’)
     ->withAnswers(Vector{‘Monday’, ‘Tuesday’, ‘Wednesday’})
     ->withAnswerStyle($answerStyle)
-    -withSeperatorStyle($seperatorStyle)
+    ->withAnswerBrackets(‘< ‘, ‘ >’)
+    ->withSeperator(‘ OR ‘)
     ->getAnswer();
 ```
 
