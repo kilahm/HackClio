@@ -256,7 +256,6 @@ final class CliFormat
 
     private function formatLine(string $line) : string
     {
-        echo $line . '(' . $this->leftPad . ';' . $this->rightPad . ')' . PHP_EOL;
         return str_repeat(' ', $this->leftMargin)
             . CliColor::make(
                 str_pad(str_repeat(' ', $this->leftPad) . $line, $this->paddedTextWidth)
