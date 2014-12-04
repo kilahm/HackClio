@@ -172,7 +172,6 @@ final class Clio
             $description .= PHP_EOL . $this->format('Arguments')
                 ->fg(ForegroundCode::white)
                 ->bg(BackgroundCode::dark_gray)
-                ->effect(EffectCode::bold)
                 ->indentLeft(2.0)
                 ->pad(1.0)
                 ;
@@ -186,7 +185,6 @@ final class Clio
             $description .= PHP_EOL . $this->format('Options')
                 ->fg(ForegroundCode::white)
                 ->bg(BackgroundCode::dark_gray)
-                ->effect(EffectCode::bold)
                 ->indentLeft(2.0)
                 ->pad(1.0)
                 ;
@@ -200,11 +198,7 @@ final class Clio
             $description .= $this->formatNameAndDescription($name, $opt->description);
         }
 
-        //$useText = $this->format('Use:')->fg(ForegroundCode::blue)->effect(EffectCode::underline);
-        $helpText = $this->format("Use:\n$help")->indentLeft(0.0)->padLeft(3.0)->vPad()
-            ->fg(ForegroundCode::white)->bg(BackgroundCode::dark_gray);//->effect(EffectCode::bold);
-
-        echo  PHP_EOL . $helpText
+        echo  PHP_EOL . $this->formatUseText()
             . PHP_EOL . $description;
     }
 
@@ -213,19 +207,26 @@ final class Clio
         if($this->useText !== null) {
             return $this->useText;
         }
-        return (string)$this->format("Use:\n" . implode(' ', $this->args->map($a ==> $a->name)))
-            ->padLeft(3.0)->vPad()
-            ->fg(ForegroundCode::white)
-            ->bg(BackgroundCode::dark_gray)
-            //->effect(EffectCode::bold)
+        return (string)$this->format(
+            $this->scriptname
+            . ($this->args->isEmpty() ? '' : ' ')
+            . implode(' ', $this->args->map($a ==> $a->name))
+        )
+            ->pad(3.0)->vPad()
+            ->fg(ForegroundCode::black)
+            ->bg(BackgroundCode::light_gray)
             ;
     }
 
     private function formatNameAndDescription(string $name, string $description) : string
     {
-        $out = PHP_EOL . $this->format($name)->indentLeft(0.03)->getResult() . PHP_EOL;
+        $out = PHP_EOL
+            . $this->format($name)
+            ->indentLeft(0.03)
+            ->fg(ForegroundCode::green)
+            . PHP_EOL;
         if($description !== '') {
-            $out .= $this->format($description)->indent(0.05)->getResult() . PHP_EOL;
+            $out .= $this->format($description)->indent(0.05) . PHP_EOL;
         }
         return $out;
     }
