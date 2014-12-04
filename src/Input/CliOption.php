@@ -65,17 +65,18 @@ class CliOption
     public function getAllNames() : string
     {
         $val = $this->hasVal() ? '' : '<Value>';
-        $out = strlen($this->name) === 1 ? '-' . $this->name : '--' . $this->name;
-        foreach($this->aliases as $alias) {
-            $long = strlen($alias) > 1;
-            $out .= PHP_EOL
-                . ($long ? '--' : '-')
-                . $alias
+        $format = (string $in) ==> {
+            $long = strlen($in) > 1;
+            return ($long ? '--' : '-')
+                . $in
                 . ($long && $this->hasVal() ? ' ' : '')
                 . $val
                 ;
-        }
-        return $out;
+        };
+        $aliasList = implode(PHP_EOL, $this->aliases->map($format));
+        return $format($this->name)
+            . ($this->aliases->isEmpty() ? '' : PHP_EOL)
+            . $aliasList;
     }
 
     public function accumulates() : this
