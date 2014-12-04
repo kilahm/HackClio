@@ -25,10 +25,10 @@ $clio
     ->arg('arg1')
     ->arg('arg2')->describedAs('The second argument')
     ->opt('a')->describedAs(str_repeat('This is a really long description. ', 10))
-    ->opt('long-option')
+    ->opt('long-option')->withValue()
     ->opt('another-option')->describedAs('That one option that does nothing.');
 $clio->parseInput();
-$clio->help();
+//$clio->help();
 
 $answer = $clio->ask('Is this a question?')->withAnswers(Vector{'yes', 'no'})->getAnswer();
 

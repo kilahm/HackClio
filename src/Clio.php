@@ -4,6 +4,9 @@ namespace kilahm\Clio;
 
 use Exception;
 use InvalidArgumentException;
+use kilahm\Clio\Enum\BackgroundCode;
+use kilahm\Clio\Enum\EffectCode;
+use kilahm\Clio\Enum\ForegroundCode;
 use kilahm\Clio\Exception\ClioException;
 use kilahm\Clio\Exception\MissingOptionValue;
 use kilahm\Clio\Exception\UnknownOption;
@@ -14,10 +17,12 @@ use kilahm\Clio\Input\CliQuestion;
 use kilahm\Clio\Output\CliFormat;
 
 <<__ConsistentConstruct>>
-class Clio
+final class Clio
 {
-    private bool $suppressAutoHelp = false;
+    private bool $autoHelp = true;
+    private bool $throwOnParseError = false;
     private ?string $helptext = null;
+    private ?string $useText = null;
     private int $argCount = 0;
     private bool $shouldCompile = true;
 
@@ -33,6 +38,14 @@ class Clio
     }
 
     public static function fromCli() : this
+    {
+        $clio = self::fromCliWithoutHelp();
+        $clio->opt('help')->aka('h')
+            ->describedAs('Show this help');
+        return $clio;
+    }
+
+    public static function fromCliWithoutHelp() : this
     {
         $argv = self::getServerArgv();
         $scriptname = basename($argv[0]);
@@ -111,8 +124,8 @@ class Clio
     public function getOpt(string $name) : CliOption
     {
         $this->parseInput();
-        if($this->definedOptions->containsKey($name)) {
-            return $this->definedOptions->at($name);
+        if($this->flatOptions->containsKey($name)) {
+            return $this->flatOptions->at($name);
         }
         throw new \DomainException('Option ' . $name . ' was not defined.');
     }
@@ -127,13 +140,19 @@ class Clio
 
     public function throwOnParseError() : this
     {
-        $this->suppressAutoHelp = true;
+        $this->throwOnParseError = true;
         return $this;
     }
 
     public function setHelp(string $text) : this
     {
         $this->helptext = $text;
+        return $this;
+    }
+
+    public function setUseText(string $text) : this
+    {
+        $this->useText = $text;
         return $this;
     }
 
@@ -148,13 +167,29 @@ class Clio
 
         $help = $this->scriptname;
         $description = '';
+
+        if( ! $this->args->isEmpty()) {
+            $description .= PHP_EOL . $this->format('Arguments')
+                ->fg(ForegroundCode::white)
+                ->bg(BackgroundCode::dark_gray)
+                ->effect(EffectCode::bold)
+                ->indentLeft(2.0)
+                ->pad(1.0)
+                ;
+        }
         foreach($this->args as $arg){
             $help .= ' ' . $arg->name;
             $description .= $this->formatNameAndDescription($arg->name, $arg->description);
         }
 
         if( ! $this->definedOptions->isEmpty()) {
-            $description .= PHP_EOL . $this->format('Options')->asBanner();
+            $description .= PHP_EOL . $this->format('Options')
+                ->fg(ForegroundCode::white)
+                ->bg(BackgroundCode::dark_gray)
+                ->effect(EffectCode::bold)
+                ->indentLeft(2.0)
+                ->pad(1.0)
+                ;
         }
 
         foreach($this->definedOptions as $opt) {
@@ -165,14 +200,32 @@ class Clio
             $description .= $this->formatNameAndDescription($name, $opt->description);
         }
 
-        echo PHP_EOL . $this->format($help)->asBanner() . PHP_EOL . $description;
+        //$useText = $this->format('Use:')->fg(ForegroundCode::blue)->effect(EffectCode::underline);
+        $helpText = $this->format("Use:\n$help")->indentLeft(0.0)->padLeft(3.0)->vPad()
+            ->fg(ForegroundCode::white)->bg(BackgroundCode::dark_gray);//->effect(EffectCode::bold);
+
+        echo  PHP_EOL . $helpText
+            . PHP_EOL . $description;
+    }
+
+    private function formatUseText() : string
+    {
+        if($this->useText !== null) {
+            return $this->useText;
+        }
+        return (string)$this->format("Use:\n" . implode(' ', $this->args->map($a ==> $a->name)))
+            ->padLeft(3.0)->vPad()
+            ->fg(ForegroundCode::white)
+            ->bg(BackgroundCode::dark_gray)
+            //->effect(EffectCode::bold)
+            ;
     }
 
     private function formatNameAndDescription(string $name, string $description) : string
     {
         $out = PHP_EOL . $this->format($name)->indentLeft(0.03)->getResult() . PHP_EOL;
         if($description !== '') {
-            $out .= $this->format($description)->indentLeft(0.05)->getResult() . PHP_EOL;
+            $out .= $this->format($description)->indent(0.05)->getResult() . PHP_EOL;
         }
         return $out;
     }
@@ -203,8 +256,9 @@ class Clio
                 }
             }
 
+            $this->checkForHelp();
         } catch (ClioException $e) {
-            if($this->suppressAutoHelp) {
+            if($this->throwOnParseError) {
                 throw $e;
             }
             echo PHP_EOL . $this->format($e->getMessage())->asError() . PHP_EOL;
@@ -337,5 +391,19 @@ class Clio
     public function out(string $out) : void
     {
         fputs($this->stdout, $out);
+    }
+
+    public function supressAutoHelp() : this
+    {
+        $this->autoHelp = false;
+        return $this;
+    }
+
+    private function checkForHelp() : void
+    {
+        if($this->autoHelp && $this->flatOptions->get('help')?->wasPresent()) {
+            $this->help();
+            exit();
+        }
     }
 }

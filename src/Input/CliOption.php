@@ -64,9 +64,16 @@ class CliOption
 
     public function getAllNames() : string
     {
+        $val = $this->hasVal() ? '' : '<Value>';
         $out = strlen($this->name) === 1 ? '-' . $this->name : '--' . $this->name;
         foreach($this->aliases as $alias) {
-            $out .= strlen($alias) === 1 ? '-' . $alias : '--' . $alias;
+            $long = strlen($alias) > 1;
+            $out .= PHP_EOL
+                . ($long ? '--' : '-')
+                . $alias
+                . ($long && $this->hasVal() ? ' ' : '')
+                . $val
+                ;
         }
         return $out;
     }

@@ -191,6 +191,11 @@ final class CliFormat
         return $this->getResult();
     }
 
+    public function __toString() : string
+    {
+        return $this->getResult();
+    }
+
     public function getResult() : string
     {
         $this->adjustSpacing();

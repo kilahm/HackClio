@@ -127,6 +127,6 @@ final class CliColor
 
     private function makeSequence(int $code) : string
     {
-        return sprintf("\033[%dm", $code);
+        return sprintf("\e[%dm", $code);
     }
 }
