@@ -17,9 +17,11 @@ class CliQuestion
     private bool $asked = false;
     private string $formattedQuestion = '';
     private string $prompt = ' > ';
+    private string $leftBracket = '[ ';
+    private string $rightBracket = ' ]';
+    private string $seperator = ' | ';
     private CliCursor $cursor;
     private ColorStyle $answerStyle;
-    private ColorStyle $sepStyle;
     private int $lineCount = 0;
 
     public function __construct(private string $question, private Clio $clio)
@@ -29,11 +31,6 @@ class CliQuestion
             'fg' => ForegroundCode::cyan,
             'bg'=> BackgroundCode::reset,
             'effect' => EffectCode::bold,
-        );
-        $this->sepStyle = shape(
-            'fg' => ForegroundCode::light_gray,
-            'bg' => BackgroundCode::reset,
-            'effect' => EffectCode::reset,
         );
     }
 
@@ -50,15 +47,22 @@ class CliQuestion
         return $this;
     }
 
-    public function withSeperatorStyle(ColorStyle $style) : this
-    {
-        $this->sepStyle = $style;
-        return $this;
-    }
-
     public function withPrompt(string $prompt) : this
     {
         $this->prompt = $prompt;
+        return $this;
+    }
+
+    public function withAnswerBrackets(string $left, string $right) : this
+    {
+        $this->leftBracket = $left;
+        $this->rightBracket = $right;
+        return $this;
+    }
+
+    public function withSeperator(string $seperator) : this
+    {
+        $this->seperator = $seperator;
         return $this;
     }
 
@@ -93,17 +97,18 @@ class CliQuestion
             return '';
         }
         $oneLineAnswers = implode(
-            CliColor::make(' | ')->withStyle($this->sepStyle),
+            $this->seperator,
             $this->answers->map($ans ==>
                 CliColor::make($ans)->withStyle($this->answerStyle)
             )
         );
-        $answerFormatter = CliFormat::make($oneLineAnswers)->indent(1.0);
+        $answerFormatter = CliFormat::make($oneLineAnswers);
         $this->lineCount = $answerFormatter->lineCount();
 
-        return PHP_EOL . CliColor::make('[ ')->withStyle($this->sepStyle)
+        return PHP_EOL . ' '
+            . $this->leftBracket
             . $answerFormatter->getResult()
-            . CliColor::make(' ]')->withStyle($this->sepStyle);
+            . $this->rightBracket;
     }
 
     private function ask() : string
