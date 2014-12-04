@@ -20,6 +20,8 @@ final class CliFormat
     private int $maxWidth;
     private int $paddedTextWidth = 0;
     private bool $vPad = false;
+    private Vector<string> $lines;
+    private int $baseLineWidth;
 
     <<__Memoize>>
     private static function getScreenWidth() : int
@@ -33,6 +35,8 @@ final class CliFormat
     }
     public function __construct(private string $text)
     {
+        $this->lines = Vector::fromItems(explode(PHP_EOL, $text));
+        $this->baseLineWidth = max($this->lines->map($l ==> strlen($l)));
         $this->screenWidth = self::getScreenWidth();
         $this->textWidth = $this->screenWidth;
         $this->maxWidth = $this->screenWidth;
@@ -245,18 +249,19 @@ final class CliFormat
             $this->textWidth += 1;
         }
 
-        $this->textWidth = min($maxWidth, strlen($this->text), $this->maxWidth);
+        $this->textWidth = min($maxWidth, $this->baseLineWidth, $this->maxWidth);
 
         $this->paddedTextWidth = $this->textWidth + $this->leftPad + $this->rightPad;
     }
 
     private function formatLine(string $line) : string
     {
+        echo $line . '(' . $this->leftPad . ';' . $this->rightPad . ')' . PHP_EOL;
         return str_repeat(' ', $this->leftMargin)
             . CliColor::make(
                 str_pad(str_repeat(' ', $this->leftPad) . $line, $this->paddedTextWidth)
             )->withStyle($this->colors)
-            . str_repeat(' ', $this->rightMargin);
+            ;
     }
 
     private function makeBlankLine() : string
