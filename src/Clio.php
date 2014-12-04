@@ -402,7 +402,8 @@ final class Clio
 
     private function checkForHelp() : void
     {
-        if($this->autoHelp && $this->flatOptions->get('help')?->wasPresent()) {
+        $help = $this->flatOptions->get('help');
+        if($this->autoHelp && $help !== null && $help->wasPresent()) {
             $this->help();
             exit();
         }
