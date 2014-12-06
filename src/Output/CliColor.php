@@ -41,9 +41,7 @@ final class CliColor
         );
     }
 
-    private ForegroundCode $fg = ForegroundCode::reset;
-    private BackgroundCode $bg = BackgroundCode::reset;
-    private EffectCode $effect = EffectCode::reset;
+    private ColorStyle $style;
 
     public static function make(string $text) : this
     {
@@ -61,23 +59,24 @@ final class CliColor
 
     public function __construct(private string $text = '')
     {
+        $this->style = self::plain();
     }
 
     public function fg(ForegroundCode $fg) : this
     {
-        $this->fg = $fg;
+        $this->style['fg'] = $fg;
         return $this;
     }
 
     public function bg(BackgroundCode $bg) : this
     {
-        $this->bg = $bg;
+        $this->style['bg'] = $bg;
         return $this;
     }
 
     public function effect(EffectCode $effect) : this
     {
-        $this->effect = $effect;
+        $this->style['effect'] = $effect;
         return $this;
     }
 
@@ -86,47 +85,24 @@ final class CliColor
         return $this->apply() . $this->text . $this->reset();
     }
 
-    private function apply() : string
-    {
-        $out = '';
-
-        if($this->fg !== ForegroundCode::reset) {
-            $out .= $this->makeSequence($this->fg);
-        }
-
-        if($this->bg !== BackgroundCode::reset) {
-            $out .= $this->makeSequence($this->bg);
-        }
-
-        if($this->effect !== EffectCode::reset) {
-            $out .= $this->makeSequence($this->effect);
-        }
-
-        return $out;
-
-    }
-
     private function reset() : string
     {
-        $out = '';
-
-        if($this->fg !== ForegroundCode::reset) {
-            $out .= $this->makeSequence(ForegroundCode::reset);
+        if($this->style == self::plain()){
+            return '';
         }
-
-        if($this->bg !== BackgroundCode::reset) {
-            $out .= $this->makeSequence(BackgroundCode::reset);
-        }
-
-        if($this->effect !== EffectCode::reset) {
-            $out .= $this->makeSequence(EffectCode::reset);
-        }
-
-        return $out;
+        return "\e[m";
     }
 
-    private function makeSequence(int $code) : string
+    private function apply() : string
     {
-        return sprintf("\e[%dm", $code);
+        if($this->style == self::plain()) {
+            return '';
+        }
+        return sprintf("\e[%sm", array_reduce($this->style, ($r, $i) ==> {
+            if($i != 0) {
+                $r .= (strlen($r) > 0 ? ';' : '') . $i;
+            }
+            return $r;
+        }));
     }
 }
