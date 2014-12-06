@@ -9,7 +9,7 @@ Fluent command line input and output library for Hack.  This library is useful t
 The only option currently supported is to install through [Composer](https://getcomposer.org/).  Add the following line to your `required` block:
 
 ```json
-“kilahm/hack-clio”: “~0.2”
+“kilahm/hack-clio”: “~1.0”
 ```
 
 ## Features
