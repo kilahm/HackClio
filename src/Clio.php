@@ -7,11 +7,11 @@ use InvalidArgumentException;
 use kilahm\Clio\Enum\BackgroundCode;
 use kilahm\Clio\Enum\EffectCode;
 use kilahm\Clio\Enum\ForegroundCode;
+use kilahm\Clio\Enum\CliOptionType;
 use kilahm\Clio\Exception\ClioException;
 use kilahm\Clio\Exception\MissingOptionValue;
 use kilahm\Clio\Exception\UnknownOption;
 use kilahm\Clio\Input\CliOption;
-use kilahm\Clio\Input\CliOptionType;
 use kilahm\Clio\Input\CliArg;
 use kilahm\Clio\Input\CliQuestion;
 use kilahm\Clio\Output\CliFormat;
@@ -326,40 +326,21 @@ final class Clio
     private function processOpt(string $name, ?string $val, Vector<string> $argv) : void
     {
         $opt = $this->flatOptions->at($name);
+        $opt->incrementCount();
 
         if($opt->hasVal()) {
 
-            if($val === null) {
-                // Try to make the value non-null
-                if( ! $argv->isEmpty()) {
-                    // Try the next argument
-                    $val = $argv->pop();
-                    if($val === '' || substr($val,0,1) === '-') {
-                        throw new MissingOptionValue($name);
-                    }
-
-                } elseif($opt->hasDefault()) {
-                    // Try the default value
-                    $val = $opt->getVal();
-                } else {
-                    // No more sources for a value
+            if($val === null && ! $argv->isEmpty()) {
+                // Try the next argument
+                $val = $argv->pop();
+                if($val === '' || substr($val,0,1) === '-') {
                     throw new MissingOptionValue($name);
                 }
             }
 
-            if($opt->getType() === CliOptionType::Path) {
-                $rp = realpath($val);
-                if($rp === false) {
-                    throw new \Exception($val . ' is not a valid path.');
-                }
-                $val = $rp;
-            }
-
-            $opt->setVal($val);
+            $opt->setVal($val, $name);
             $opt->validate($name);
         }
-
-        $opt->incrementCount();
     }
 
     private function assertOptionDefined(string $name) : void

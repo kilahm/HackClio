@@ -9,6 +9,7 @@ class CliArg
     private string $value = '';
     public string $description = '';
     public bool $isPath = false;
+    public bool $present = false;
 
     public function __construct(public string $name, private Clio $clio)
     {
@@ -34,6 +35,7 @@ class CliArg
 
     public function setVal(string $val) : void
     {
+        $this->present = true;
         $this->value = $val;
     }
 

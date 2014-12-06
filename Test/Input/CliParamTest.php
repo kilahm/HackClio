@@ -222,4 +222,13 @@ class CliParamTest extends ClioTestCase
             $clio->parseInput();
         })->toNotThrow();
     }
+
+    public function testMultiValueOptionGathersAllValues() : void
+    {
+        $clio = $this->makeClio(Vector{'-aOne', '-a', 'Two'});
+        $clio->opt('a')->withManyValues();
+        $this->expectCallable(() ==> {
+            $clio->parseInput();
+        })->toNotThrow();
+    }
 }

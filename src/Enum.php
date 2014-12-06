@@ -2,6 +2,15 @@
 
 namespace kilahm\Clio\Enum;
 
+enum CliOptionType : string as string
+{
+    Value = 'Value';
+    Accumulator = 'Accumulator';
+    Flag = 'Flag';
+    Path = 'Path';
+    MultiValued = 'Multi-valued';
+}
+
 enum ForegroundCode : int as int
 {
     reset      = 39;

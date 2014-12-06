@@ -5,16 +5,10 @@ namespace kilahm\Clio\Input;
 use \LogicException;
 use \InvalidArgumentException;
 use kilahm\Clio\Clio;
+use kilahm\Clio\Enum\CliOptionType;
 use kilahm\Clio\Exception\ClioException;
 use kilahm\Clio\Exception\InvalidOptionValue;
-
-enum CliOptionType : string as string
-{
-    Value = 'Value';
-    Accumulator = 'Accumulator';
-    Flag = 'Flag (no value allowed)';
-    Path = 'Path';
-}
+use kilahm\Clio\Exception\MissingOptionValue;
 
 <<__ConsistentConstruct>>
 class CliOption
@@ -27,6 +21,8 @@ class CliOption
     private ?string $regex = null;
     private ?(function(string):bool) $validator = null;
     private ?string $invalidMessage = null;
+    private Vector<string> $valueList = Vector{};
+    private ?Vector<string> $defaultValueList = null;
 
     public string $description = '';
 
@@ -110,6 +106,15 @@ class CliOption
         return $this;
     }
 
+    public function withManyValues(?Traversable<string> $default = null) : this
+    {
+        $this->type = CliOptionType::MultiValued;
+        if($default !== null) {
+            $this->defaultValueList = Vector::fromItems($default);
+        }
+        return $this;
+    }
+
     public function getType() : CliOptionType
     {
         return $this->type;
@@ -141,9 +146,40 @@ class CliOption
         throw new LogicException($this->type . ' type options do not have values.');
     }
 
-    public function setVal(string $value) : void
+    public function getValueList() : Vector<string>
     {
+        switch($this->type) {
+        case CliOptionType::Value:
+        case CliOptionType::Path:
+            throw new LogicException('Value and Path type options only have one value.');
+            break;
+        case CliOptionType::MultiValued:
+            if($this->wasPresent()){
+                return $this->valueList;
+            } elseif($this->defaultValueList !== null) {
+                return $this->defaultValueList;
+            } else {
+                throw new MissingOptionValue($this->name);
+            }
+        case CliOptionType::Flag:
+        case CliOptionType::Accumulator:
+            throw new LogicException($this->type . ' type options do not have values.');
+        }
+    }
+
+    public function setVal(?string $value, string $alias) : void
+    {
+        if($value === null) {
+            if($this->hasDefault){
+                // The val is already the default
+                return;
+            }
+            throw new MissingOptionValue($alias);
+        }
         $this->value = $value;
+        if($this->type === CliOptionType::MultiValued) {
+            $this->valueList->add($value);
+        }
     }
 
     public function opt(string $name) : CliOption
@@ -158,7 +194,16 @@ class CliOption
 
     public function hasVal() : bool
     {
-        return $this->type === CliOptionType::Value || $this->type === CliOptionType::Path;
+        switch($this->type) {
+        case CliOptionType::Path:
+        case CliOptionType::Value:
+        case CliOptionType::MultiValued:
+            return true;
+            break;
+        case CliOptionType::Flag:
+        case CliOptionType::Accumulator:
+            return false;
+        }
     }
 
     public function hasDefault() : bool
@@ -190,12 +235,32 @@ class CliOption
             return;
         }
 
+        if($this->type === CliOptionType::Path) {
+            $rp = realpath($this->value);
+            if($rp === false) {
+                throw new \Exception($this->value . ' is not a valid path.');
+            }
+            $this->value = $rp;
+            $this->validateImpl($thisname, $this->value);
+        }
+
+        if($this->type === CliOptionType::MultiValued) {
+            foreach($this->getValueList() as $val) {
+                $this->validateImpl($thisname, $val);
+            }
+        } else {
+            $this->validateImpl($thisname, $this->value);
+        }
+    }
+
+    private function validateImpl(string $thisname, string $val) : void
+    {
         if($this->regex !== null) {
             /* HH_FIXME[4118] */
             if(preg_match($this->regex, '') === false) {
                 throw new InvalidOptionValue('Pattern ' . $this->regex . ' is not a valid regular expression.');
             }
-            if(! (bool) preg_match($this->regex, $this->value)) {
+            if(! (bool) preg_match($this->regex, $val)) {
                 if($this->invalidMessage === null) {
                     $this->invalidMessage = 'The value of '
                         . (strlen($thisname) > 1 ? '--' : '-')
@@ -209,7 +274,7 @@ class CliOption
         }
 
         $v = $this->validator;
-        if($v !== null && ! $v($this->value)) {
+        if($v !== null && ! $v($val)) {
             if($this->invalidMessage === null) {
                 $this->invalidMessage = 'The value of '
                     . (strlen($thisname) > 1 ? '--' : '-')
