@@ -1,6 +1,6 @@
 HackClio
 ========
-[![Build Status](https://travis-ci.org/kilahm/HackClio.svg?branch=master)](https://travis-ci.org/kilahm/HackClio)
+[![Build Status](https://travis-ci.org/kilahm/HackClio.svg?branch=master)](https://travis-ci.org/kilahm/HackClio) [![HHVM Status](http://hhvm.h4cc.de/badge/kilahm/hack-clio.svg)](http://hhvm.h4cc.de/package/kilahm/hack-clio)
 
 Fluent command line input and output library for Hack.  This library is useful to making command line scripts that require user interaction.
 
