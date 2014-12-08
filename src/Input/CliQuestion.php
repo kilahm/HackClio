@@ -29,8 +29,8 @@ class CliQuestion
         $this->cursor = new CliCursor();
         $this->answerStyle = shape(
             'fg' => ForegroundCode::cyan,
-            'bg'=> BackgroundCode::reset,
-            'effect' => EffectCode::bold,
+            'bg'=> BackgroundCode::normal,
+            'effects' => Vector{EffectCode::bold},
         );
     }
 

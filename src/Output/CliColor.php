@@ -4,12 +4,13 @@ namespace kilahm\Clio\Output;
 
 use kilahm\Clio\Enum\BackgroundCode;
 use kilahm\Clio\Enum\EffectCode;
+use kilahm\Clio\Enum\UndoEffectCode;
 use kilahm\Clio\Enum\ForegroundCode;
 
 type ColorStyle = shape(
     'fg' => ForegroundCode,
     'bg' => BackgroundCode,
-    'effect' => EffectCode,
+    'effects' => Vector<EffectCode>,
 );
 
 final class CliColor
@@ -19,16 +20,16 @@ final class CliColor
         return shape(
             'fg' => ForegroundCode::white,
             'bg' => BackgroundCode::green,
-            'effect' => EffectCode::bold,
+            'effects' => Vector{EffectCode::bold},
         );
     }
 
     public static function plain() : ColorStyle
     {
         return shape(
-            'fg' => ForegroundCode::reset,
-            'bg' => BackgroundCode::reset,
-            'effect' => EffectCode::reset,
+            'fg' => ForegroundCode::normal,
+            'bg' => BackgroundCode::normal,
+            'effects' => Vector{},
         );
     }
 
@@ -37,7 +38,7 @@ final class CliColor
         return shape(
             'fg' => ForegroundCode::white,
             'bg' => BackgroundCode::light_red,
-            'effect' => EffectCode::bold,
+            'effects' => Vector{EffectCode::bold},
         );
     }
 
@@ -51,10 +52,14 @@ final class CliColor
     public function withStyle(ColorStyle $style) : string
     {
         return $this
-            ->fg($style['fg'])
-            ->bg($style['bg'])
-            ->effect($style['effect'])
+            ->setStyle($style)
             ->getResult();
+    }
+
+    public function setStyle(ColorStyle $style) : this
+    {
+        $this->style = $style;
+        return $this;
     }
 
     public function __construct(private string $text = '')
@@ -74,35 +79,40 @@ final class CliColor
         return $this;
     }
 
-    public function effect(EffectCode $effect) : this
+    public function addEffects(Traversable<EffectCode> $effects) : this
     {
-        $this->style['effect'] = $effect;
+        $this->style['effects']->addAll($effects);
+        return $this;
+    }
+
+    public function addEffect(EffectCode $effect) : this
+    {
+        $this->style['effects']->add($effect);
         return $this;
     }
 
     public function getResult() : string
     {
-        return $this->apply() . $this->text . $this->reset();
-    }
+        $effectNames = EffectCode::getNames();
+        $undoEffects = UndoEffectCode::getValues();
 
-    private function reset() : string
-    {
-        if($this->style == self::plain()){
-            return '';
+        $onCodes = Vector{};
+        $offCodes = Vector{};
+        if($this->style['fg'] !== ForegroundCode::normal) {
+            $onCodes->add($this->style['fg']);
+            $offCodes->add(ForegroundCode::normal);
         }
-        return "\e[m";
-    }
-
-    private function apply() : string
-    {
-        if($this->style == self::plain()) {
-            return '';
+        if($this->style['bg'] !== BackgroundCode::normal) {
+            $onCodes->add($this->style['bg']);
+            $offCodes->add(BackgroundCode::normal);
         }
-        return sprintf("\e[%sm", array_reduce($this->style, ($r, $i) ==> {
-            if($i != 0) {
-                $r .= (strlen($r) > 0 ? ';' : '') . $i;
-            }
-            return $r;
-        }));
+        foreach($this->style['effects'] as $effect) {
+            $onCodes->add($effect);
+            $offCodes->add($undoEffects[$effectNames[$effect]]);
+        }
+        if($onCodes->isEmpty()) {
+            return $this->text;
+        }
+        return sprintf("\e[%sm%s\e[%sm", implode(';', $onCodes), $this->text, implode(';', $offCodes));
     }
 }

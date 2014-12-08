@@ -37,7 +37,9 @@ class CliQuestionTest extends ClioTestCase
             ->withAnswers(Vector{'a1', 'a2', 'a3'})
             ->withAnswerStyle(CliColor::plain())
             ->getAnswer();
-        $this->expectOut(PHP_EOL . 'The question' . PHP_EOL . ' [ a1 | a2 | a3 ]' . PHP_EOL . ' > ');
+        $this->expectOut(PHP_EOL . 'The question'
+            . PHP_EOL . ' [ a1 | a2 | a3 ]'
+            . PHP_EOL . ' > ');
     }
 
     public function testCustomSeperatorAndBracketsArePrinted() : void

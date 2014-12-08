@@ -48,6 +48,12 @@ final class CliFormat
         return $this->screenWidth;
     }
 
+    public function withScreenWidth(int $int) : this
+    {
+        $this->screenWidth = $int;
+        return $this;
+    }
+
     public function splitLines(int $width) : Vector<string>
     {
         return Vector::fromItems(
@@ -159,9 +165,15 @@ final class CliFormat
         return $this;
     }
 
-    public function effect(EffectCode $effect) : this
+    public function withEffects(Traversable<EffectCode> $effects) : this
     {
-        $this->colors['effect'] = $effect;
+        $this->colors['effects']->addAll($effects);
+        return $this;
+    }
+
+    public function withEffect(EffectCode $effect) : this
+    {
+        $this->colors['effects']->add($effect);
         return $this;
     }
 

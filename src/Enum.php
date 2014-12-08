@@ -13,7 +13,7 @@ enum CliOptionType : string as string
 
 enum ForegroundCode : int as int
 {
-    reset      = 39;
+    normal     = 39;
     black      = 30;
     red        = 31;
     green      = 32;
@@ -36,8 +36,7 @@ enum ForegroundCode : int as int
 
 enum BackgroundCode : int as int
 {
-
-    reset      = 49;
+    normal     = 49;
     black      = 40;
     red        = 41;
     green      = 42;
@@ -59,7 +58,6 @@ enum BackgroundCode : int as int
 
 enum EffectCode : int as int
 {
-    reset     = 0;
     bold      = 1;
     dark      = 2;
     italic    = 3;
@@ -67,6 +65,17 @@ enum EffectCode : int as int
     blink     = 5;
     reverse   = 7;
     concealed = 8;
+}
+
+enum UndoEffectCode : int as int
+{
+    bold      = 22;
+    dark      = 22;
+    italic    = 23;
+    underline = 24;
+    blink     = 25;
+    reverse   = 27;
+    concealed = 28;
 }
 
 enum CliTextAlign : string
