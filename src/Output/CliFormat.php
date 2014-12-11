@@ -81,7 +81,7 @@ final class CliFormat
         return $this;
     }
 
-    public function center(float $padding = 0.0) : this
+    public function center() : this
     {
         $this->alignment = CliTextAlign::Center;
         return $this;
@@ -232,7 +232,7 @@ final class CliFormat
             - $this->leftPad - $this->rightPad
             - $this->leftMargin - $this->rightMargin;
 
-        while($maxWidth < 4) {
+        while($maxWidth < 0) {
 
             // Reduce padding first
             if($this->leftPad > 0 || $this->rightPad > 0) {
@@ -254,8 +254,7 @@ final class CliFormat
 
             // Reduce padding second
             } else {
-                // Who has a terminal only 4 characters wide?!
-                break;
+                throw new \Exception('Screen width for terminal output is 0 characters wide.');
             }
 
             $this->textWidth += 1;
@@ -268,11 +267,22 @@ final class CliFormat
 
     private function formatLine(string $line) : string
     {
-        return str_repeat(' ', $this->leftMargin)
+        $base = str_repeat(' ', $this->leftMargin)
             . CliColor::make(
                 str_pad(str_repeat(' ', $this->leftPad) . $line, $this->paddedTextWidth)
             )->withStyle($this->colors)
             ;
+        switch($this->alignment) {
+        case CliTextAlign::Left:
+            return $base;
+            break;
+        case CliTextAlign::Center:
+            return str_pad($base, $this->screenWidth, ' ', STR_PAD_BOTH);
+            break;
+        case CliTextAlign::Right:
+            return str_pad($base, $this->screenWidth, ' ', STR_PAD_LEFT);
+            break;
+        }
     }
 
     private function makeBlankLine() : string

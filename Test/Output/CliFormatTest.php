@@ -75,5 +75,52 @@ class CliFormatTest extends ClioTestCase
         $this->expect($f->getResult())->toEqual($expected);
     }
 
-    // TODO: test indentleft, indentright, indentright with small screen, push right, center
+    public function testIndentLeftAddsSpaces() : void
+    {
+        $text = 'string';
+        $expected = '  string';
+        $f = CliFormat::make($text)->indentLeft(2.0);
+        $this->expect($f->getResult())->toEqual($expected);
+    }
+
+
+    public function testIndentRightAddsNewlineForSmallScreens() : void
+    {
+        $text = 'strings';
+        $expected = 'str' . PHP_EOL . 'ing' . PHP_EOL . 's  ';
+        $f = CliFormat::make($text)->withScreenWidth(5)->indentRight(2.0);
+        $this->expect($f->getResult())->toEqual($expected);
+    }
+
+    public function testIndentRightAddsNothingForLargeScreens() : void
+    {
+        $text = 'string';
+        $f = CliFormat::make($text)->withScreenWidth(30)->indentRight(2.0);
+        $this->expect($f->getResult())->toEqual($text);
+    }
+
+    public function testIndentCanBeRelative() : void
+    {
+        $text = 'string';
+        $expected = '  string';
+        $f = CliFormat::make($text)->withScreenWidth(20)->indent(0.1);
+        $this->expect($f->getResult())->toEqual($expected);
+    }
+
+    public function testCenter() : void
+    {
+        $text = 'string';
+        $expected = '      string      ';
+        $f = CliFormat::make($text)->withScreenWidth(18)->center();
+        $this->expect($f->getResult())->toEqual($expected);
+    }
+
+    public function testPushRight() : void
+    {
+        $text = 'string';
+        $expected = str_repeat(' ', 10) . $text;
+        $width = strlen($text) + 10;
+        $f = CliFormat::make($text)->withScreenWidth($width)->pushRight();
+        $this->expect($f->getResult())->toEqual($expected);
+    }
 }
