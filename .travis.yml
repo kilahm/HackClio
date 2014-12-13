@@ -8,4 +8,5 @@ before_script:
     - composer install --prefer-source
 
 script:
+    - hh_server --check .
     - vendor/bin/hackunit Test/
