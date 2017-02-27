@@ -17,10 +17,7 @@
     "autoload": {
         "psr-4": {
             "kilahm\\Clio\\": "src/",
-            "kilahm\\Clio\\Test\\": "Test/"
-        },
-        "files": [
-            "src/Enum.php"
-        ]
+            "kilahm\\Clio\\Test\\": "tests/"
+        }
     }
 }

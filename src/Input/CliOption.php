@@ -5,7 +5,7 @@ namespace kilahm\Clio\Input;
 use \LogicException;
 use \InvalidArgumentException;
 use kilahm\Clio\Clio;
-use kilahm\Clio\Enum\CliOptionType;
+use kilahm\Clio\Definition\CliOptionType;
 use kilahm\Clio\Exception\ClioException;
 use kilahm\Clio\Exception\InvalidOptionValue;
 use kilahm\Clio\Exception\MissingOptionValue;

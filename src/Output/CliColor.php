@@ -2,10 +2,10 @@
 
 namespace kilahm\Clio\Output;
 
-use kilahm\Clio\Enum\BackgroundCode;
-use kilahm\Clio\Enum\EffectCode;
-use kilahm\Clio\Enum\UndoEffectCode;
-use kilahm\Clio\Enum\ForegroundCode;
+use kilahm\Clio\Definition\BackgroundCode;
+use kilahm\Clio\Definition\EffectCode;
+use kilahm\Clio\Definition\UndoEffectCode;
+use kilahm\Clio\Definition\ForegroundCode;
 
 type ColorStyle = shape(
     'fg' => ForegroundCode,

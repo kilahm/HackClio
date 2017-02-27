@@ -3,9 +3,9 @@
 namespace kilahm\Clio\Input;
 
 use kilahm\Clio\Clio;
-use kilahm\Clio\Enum\BackgroundCode;
-use kilahm\Clio\Enum\EffectCode;
-use kilahm\Clio\Enum\ForegroundCode;
+use kilahm\Clio\Definition\BackgroundCode;
+use kilahm\Clio\Definition\EffectCode;
+use kilahm\Clio\Definition\ForegroundCode;
 use kilahm\Clio\Output\CliColor;
 use kilahm\Clio\Output\CliCursor;
 use kilahm\Clio\Output\CliFormat;
