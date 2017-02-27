@@ -2,10 +2,10 @@
 
 namespace kilahm\Clio\Output;
 
-use kilahm\Clio\Enum\BackgroundCode;
-use kilahm\Clio\Enum\CliTextAlign;
-use kilahm\Clio\Enum\EffectCode;
-use kilahm\Clio\Enum\ForegroundCode;
+use kilahm\Clio\Definition\BackgroundCode;
+use kilahm\Clio\Definition\CliTextAlign;
+use kilahm\Clio\Definition\EffectCode;
+use kilahm\Clio\Definition\ForegroundCode;
 
 final class CliFormat
 {

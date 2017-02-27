@@ -4,10 +4,10 @@ namespace kilahm\Clio;
 
 use Exception;
 use InvalidArgumentException;
-use kilahm\Clio\Enum\BackgroundCode;
-use kilahm\Clio\Enum\EffectCode;
-use kilahm\Clio\Enum\ForegroundCode;
-use kilahm\Clio\Enum\CliOptionType;
+use kilahm\Clio\Definition\BackgroundCode;
+use kilahm\Clio\Definition\EffectCode;
+use kilahm\Clio\Definition\ForegroundCode;
+use kilahm\Clio\Definition\CliOptionType;
 use kilahm\Clio\Exception\ClioException;
 use kilahm\Clio\Exception\MissingOptionValue;
 use kilahm\Clio\Exception\UnknownOption;
